@@ -49,15 +49,20 @@ export function formatNotionTime(ms: number): string {
  * Page icons set to a workspace custom emoji arrive as `notion://custom_emoji/<space>/<id>`, which react-notion-x
  * would wrap in an image-proxy URL that 404s. The page chunk carries a `custom_emoji` table with the real image URL,
  * so rewrite icons in place and expose the id->url map react-notion-x uses for inline ("ce") emojis.
+ * Returns icons still unresolved as [spaceId, emojiId] (rows loaded via collection queries lack their records).
  */
-export function resolveCustomEmojis(map: ExtendedRecordMap) {
-  const table = (map as unknown as { custom_emoji?: Record<string, unknown> }).custom_emoji
-  if (!table) return
+export function resolveCustomEmojis(map: ExtendedRecordMap): [string, string][] {
+  const table = (map as unknown as { custom_emoji?: Record<string, unknown> }).custom_emoji ?? {}
   const urls = Object.fromEntries(Object.entries(table).map(([id, rec]) => [id, (getBlockValue(rec as never) as unknown as { url?: string })?.url ?? null]))
   map.custom_emojis = { ...map.custom_emojis, ...urls }
+  const missing: [string, string][] = []
   for (const rec of Object.values(map.block)) {
     const b = getBlockValue(rec)
     const icon = b?.format?.page_icon
-    if (b && icon?.startsWith('notion://custom_emoji/')) b.format.page_icon = urls[icon.split('/').pop()!] ?? icon
+    if (!b || !icon?.startsWith('notion://custom_emoji/')) continue
+    const [spaceId, id] = icon.split('/').slice(-2)
+    if (urls[id]) b.format.page_icon = urls[id]
+    else missing.push([spaceId, id])
   }
+  return missing
 }

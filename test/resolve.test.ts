@@ -30,10 +30,11 @@ test('formatNotionTime', () => {
 
 test('resolveCustomEmojis', () => {
   const map = {
-    block: { p1: { value: { id: 'p1', type: 'page', format: { page_icon: 'notion://custom_emoji/space/e1' } } }, p2: { value: { id: 'p2', type: 'page', format: { page_icon: '🙂' } } } },
+    block: { p1: { value: { id: 'p1', type: 'page', format: { page_icon: 'notion://custom_emoji/space/e1' } } }, p2: { value: { id: 'p2', type: 'page', format: { page_icon: '🙂' } } }, p3: { value: { id: 'p3', type: 'page', format: { page_icon: 'notion://custom_emoji/space/e2' } } } },
     custom_emoji: { e1: { value: { value: { id: 'e1', url: 'https://img/e1.png' } } } },
   } as never
-  resolveCustomEmojis(map)
+  const missing = resolveCustomEmojis(map)
+  assert.deepEqual(missing, [['space', 'e2']])
   const m = map as { block: Record<string, { value: { format: { page_icon: string } } }>; custom_emojis: Record<string, string | null> }
   assert.equal(m.block.p1.value.format.page_icon, 'https://img/e1.png')
   assert.equal(m.block.p2.value.format.page_icon, '🙂')

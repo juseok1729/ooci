@@ -188,7 +188,8 @@ html.dark .notion-collection-card { box-shadow: rgba(255, 255, 255, 0.13) 0 0 0 
 .notion-property-title { font-weight: 500; font-size: 14px; }
 .notion-table-of-contents-item { font-size: 14px; }
 /* collection views inside a column_list: react-notion-x makes them 100vw (overlaps sibling columns) -> fit the column, scroll horizontally */
+.notion-column .notion-collection { width: 100%; max-width: 100%; align-self: stretch; } /* library: align-self:center + content width -> overflows the column */
 .notion-column .notion-table, .notion-column .notion-board { width: 100% !important; max-width: 100% !important; } /* !important: library sets inline window width after mount */
 .notion-column .notion-table-view, .notion-column .notion-board-view { padding-left: 0 !important; padding-right: 0 !important; }
-.notion-column .notion-table-view, .notion-column .notion-table-header, .notion-column .notion-board-view { min-width: 0; }
+.notion-column .notion-table-view, .notion-column .notion-table-header, .notion-column .notion-table-body, .notion-column .notion-board-view { min-width: 0; }
 .notion-table-header-inner, .notion-table-view-header-cell-inner, .notion-table-row, .notion-table-cell, .notion-collection-card-cover { border-color: var(--oopy-border); }
