@@ -30,3 +30,10 @@ export function defaultMenu(root: ExtendedRecordMap, rootPageId: string, aliases
   }
   return (getBlockValue(root.block[rootPageId])?.content ?? []).flatMap(walk)
 }
+
+/** Notion date property -> "YYYY/MM/DD HH:mm" (oopy style). ponytail: ignores Notion's per-property date_format. */
+export function formatNotionDate(d: { start_date?: string; start_time?: string; end_date?: string; end_time?: string } | undefined): string | null {
+  if (!d?.start_date) return null
+  const f = (date: string, time?: string) => date.replaceAll('-', '/') + (time ? ` ${time}` : '')
+  return f(d.start_date, d.start_time) + (d.end_date ? ` → ${f(d.end_date, d.end_time)}` : '')
+}

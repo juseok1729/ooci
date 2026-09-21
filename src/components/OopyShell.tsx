@@ -1,15 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import { NotionRenderer } from 'react-notion-x'
 import type { ExtendedRecordMap } from 'notion-types'
 import type { Alias, MenuItem, SiteSettings } from '@/lib/sites'
-import { pageHref } from '@/lib/resolve'
+import { formatNotionDate, pageHref } from '@/lib/resolve'
 
 const Code = dynamic(() => import('react-notion-x/third-party/code').then((m) => m.Code))
 const Collection = dynamic(() => import('react-notion-x/third-party/collection').then((m) => m.Collection))
 const Equation = dynamic(() => import('react-notion-x/third-party/equation').then((m) => m.Equation))
+
+// Collection date cells: oopy renders YYYY/MM/DD HH:mm instead of react-notion-x's "Sep 20, 2026".
+const propertyDateValue = ({ data }: { data?: unknown[][] }, fallback: () => ReactNode) => {
+  const d = (data?.[0]?.[1] as [string, Parameters<typeof formatNotionDate>[0]][] | undefined)?.find((x) => x[0] === 'd')?.[1]
+  return formatNotionDate(d) ?? fallback()
+}
 
 export type Crumb = { pageId: string; title: string; icon?: string; active: boolean }
 
@@ -77,6 +83,7 @@ export default function OopyShell(p: Props) {
             <button className="oopy-iconbtn" aria-label="메뉴 열기" onClick={() => setOpen(true)}>☰</button>
           </div>
           <div className="oopy-line" />
+          <div className="oopy-progress" />
           {p.crumbs.length > 1 && (
             <nav className="oopy-crumbs" aria-label="breadcrumb">
               {p.crumbs.map((c, i) => (
@@ -110,10 +117,11 @@ export default function OopyShell(p: Props) {
           darkMode={dark}
           previewImages={false}
           mapPageUrl={(id) => pageHref(id, p.rootPageId, p.aliases)}
-          components={{ Code, Collection, Equation }}
+          components={{ Code, Collection, Equation, propertyDateValue }}
         />
 
         {p.settings.footer && <footer className="oopy-footer"><span>{p.settings.footer}</span></footer>}
+        <button className="oopy-totop" aria-label="맨 위로" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>↑<span>TOP</span></button>
       </div>
     </div>
   )

@@ -4,6 +4,10 @@
   --notion-header-height: 48px;       /* topbar height */
   --oopy-color: #669dfd;              /* oopy default brand color */
   --oopy-line: #f5f5f5;
+  --oopy-border: rgba(55, 53, 47, 0.16);
+  --oopy-radius-card: 16px;           /* oopy 모서리 둥글게: 갤러리 및 보드 */
+  --oopy-radius-image: 16px;          /* 이미지 */
+  --oopy-radius-callout: 4px;         /* 콜아웃 */
   --page-header-font-size: 40px;
   --page-side: calc(96px + env(safe-area-inset-left));
   --emoji-font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'NotoColorEmoji', 'Noto Color Emoji', 'Segoe UI Symbol', 'Android Emoji', 'EmojiSymbols';
@@ -57,7 +61,7 @@ html.dark, html.dark .notion, .dark-mode {
   --notion-brown_background_co: rgba(67, 64, 64, 0.3);
   --notion-gray_background_co: rgba(69, 75, 78, 0.3);
 }
-html.dark { color-scheme: dark; --oopy-line: #2f2f2f; }
+html.dark { color-scheme: dark; --oopy-line: #2f2f2f; --oopy-border: rgba(255, 255, 255, 0.14); }
 
 html, body { margin: 0; padding: 0; }
 body {
@@ -87,6 +91,11 @@ body {
 .oopy-iconbtn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 2px; border: 0; border-radius: 8px; background: none; color: inherit; font-size: 20px; cursor: pointer; }
 .oopy-iconbtn:hover { background: var(--fg-color-0); }
 .oopy-line { width: 100%; border-bottom: 2px solid var(--oopy-line); }
+.oopy-progress { height: 2px; margin-top: -2px; background: var(--oopy-color); transform-origin: 0 50%; transform: scaleX(0); animation: oopy-progress linear both; animation-timeline: scroll(root); }
+@keyframes oopy-progress { to { transform: scaleX(1); } }
+.oopy-totop { position: fixed; right: 24px; bottom: 24px; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--bg-color); color: var(--fg-color); box-shadow: 0 0 4px rgba(0, 0, 0, 0.25); font-size: 10px; font-weight: 600; line-height: 1.1; cursor: pointer; }
+@supports (animation-timeline: scroll()) { .oopy-totop { opacity: 0; animation: oopy-fade linear both; animation-timeline: scroll(root); animation-range: 0 300px; } }
+@keyframes oopy-fade { to { opacity: 1; } }
 .oopy-crumbs { display: flex; align-items: center; width: 100%; padding: 8px; font-size: smaller; overflow: hidden; }
 .oopy-crumb { display: inline-flex; align-items: center; flex-shrink: 1; min-width: 0; height: 24px; padding: 0 6px; border-radius: 3px; color: inherit; text-decoration: none; white-space: nowrap; transition: background 120ms ease-in; }
 .oopy-crumb:hover { background: var(--fg-color-0); }
@@ -114,7 +123,7 @@ html.dark .oopy-switch::after { transform: translateX(20px); }
 /* ---- page geometry: 900px page, 96px gutters -> 708px content (oopy .width/.padding) ---- */
 .notion-app { min-height: 100vh; }
 .notion-frame { background: var(--bg-color); }
-.notion-page, .notion-full-width { width: var(--notion-max-width); max-width: 100%; padding-left: var(--page-side); padding-right: calc(var(--page-side) - env(safe-area-inset-left) + env(safe-area-inset-right)); box-sizing: border-box; }
+.notion-page { width: var(--notion-max-width); max-width: 100%; padding-left: var(--page-side); padding-right: calc(var(--page-side) - env(safe-area-inset-left) + env(safe-area-inset-right)); box-sizing: border-box; }
 .notion-page-no-cover { margin-top: 0 !important; padding-top: 96px; }
 .notion-page-has-cover { padding-top: 96px; }
 .notion-page-cover-wrapper { height: 30vh; min-height: 30vh; max-height: 30vh; }
@@ -136,24 +145,27 @@ html.dark .oopy-switch::after { transform: translateX(20px); }
 .notion-link { color: inherit; border-bottom: 0.05em solid var(--fg-color-2); opacity: 0.7; text-decoration: none; transition: border-color 0.1s ease-in, opacity 0.1s ease-in; }
 .notion-link:hover { opacity: 1; border-color: currentColor; }
 .notion-quote { padding: 0.2em 0.9em; margin: 1px 0; border-left: 3px solid currentColor; font-size: 1.2em; }
-.notion-callout { padding: 16px 16px 16px 12px; border-radius: 3px; margin: 4px 0; }
+.notion-callout { padding: 16px 16px 16px 12px; border-radius: var(--oopy-radius-callout); margin: 4px 0; }
 .notion-code { background: var(--bg-color-1); border-radius: 3px; padding: 34px 16px 32px 32px; font-size: 85%; tab-size: 2; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, Courier, monospace; }
 html.dark .notion-code { background: #3f4447; }
 .notion-inline-code { background: var(--bg-color-0); color: #eb5757; border-radius: 3px; padding: 0.2em 0.4em; font-size: 85%; }
 .notion-asset-wrapper { margin: 4px 0; max-width: 100%; }
-.notion-asset-wrapper img { border-radius: 0; }
-.notion-hr { margin: 6px 0; border-top: 1px solid var(--fg-color-0); }
-.notion-bookmark { border: 1px solid rgba(55, 53, 47, 0.16); border-radius: 3px; margin: 4px 0; }
-html.dark .notion-bookmark { border-color: rgba(255, 255, 255, 0.14); }
+.notion-asset-wrapper img { border-radius: var(--oopy-radius-image); }
+.notion-hr { margin: 6px 0; border-top: 1px solid var(--oopy-border); }
+.notion-bookmark { border: 1px solid var(--oopy-border); border-radius: 3px; margin: 4px 0; }
 .notion-bookmark-title { font-size: 14px; line-height: 20px; min-height: 24px; }
 .notion-bookmark-description { font-size: 12px; line-height: 16px; height: 32px; opacity: 0.6; }
 .notion-bookmark-link { font-size: 12px; line-height: 16px; }
 .notion-toggle > summary { padding: 3px 2px; }
 .notion-collection-header { padding: 4px 2px; }
 .notion-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-.notion-collection-card { border-radius: 3px; box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 2px 4px; }
+.notion-collection-card { border-radius: var(--oopy-radius-card); box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 2px 4px; }
 html.dark .notion-collection-card { box-shadow: rgba(255, 255, 255, 0.13) 0 0 0 1px, rgba(15, 15, 15, 0.2) 0 2px 4px; }
 .notion-collection-card:hover { background: var(--bg-color-0); }
 .notion-collection-card-body { padding: 8px 10px 10px; }
 .notion-property-title { font-weight: 500; font-size: 14px; }
 .notion-table-of-contents-item { font-size: 14px; }
+/* collection views inside a column_list: react-notion-x makes them 100vw (overlaps sibling columns) -> fit the column, scroll horizontally */
+.notion-column .notion-table, .notion-column .notion-board { width: 100%; max-width: 100%; }
+.notion-column .notion-table-view, .notion-column .notion-table-header, .notion-column .notion-board-view { min-width: 0; }
+.notion-table-header-inner, .notion-table-view-header-cell-inner, .notion-table-row, .notion-table-cell, .notion-collection-card-cover { border-color: var(--oopy-border); }
