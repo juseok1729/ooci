@@ -60,6 +60,28 @@ html.dark, html.dark .notion, .dark-mode {
   --notion-orange_background_co: rgba(89, 74, 58, 0.3);
   --notion-brown_background_co: rgba(67, 64, 64, 0.3);
   --notion-gray_background_co: rgba(69, 75, 78, 0.3);
+
+  /* select/multi-select badges: react-notion-x defines --notion-item-* for light only (Notion dark palette) */
+  --notion-item-default: rgb(90, 90, 90);
+  --notion-item-gray: rgb(90, 90, 90);
+  --notion-item-brown: rgb(96, 59, 44);
+  --notion-item-orange: rgb(133, 76, 29);
+  --notion-item-yellow: rgb(137, 99, 42);
+  --notion-item-green: rgb(43, 89, 63);
+  --notion-item-blue: rgb(40, 69, 108);
+  --notion-item-purple: rgb(73, 47, 100);
+  --notion-item-pink: rgb(105, 49, 76);
+  --notion-item-red: rgb(110, 54, 48);
+  --notion-item-text-default: var(--fg-color);
+  --notion-item-text-gray: var(--fg-color);
+  --notion-item-text-brown: var(--fg-color);
+  --notion-item-text-orange: var(--fg-color);
+  --notion-item-text-yellow: var(--fg-color);
+  --notion-item-text-green: var(--fg-color);
+  --notion-item-text-blue: var(--fg-color);
+  --notion-item-text-purple: var(--fg-color);
+  --notion-item-text-pink: var(--fg-color);
+  --notion-item-text-red: var(--fg-color);
 }
 html.dark { color-scheme: dark; --oopy-line: #2f2f2f; --oopy-border: rgba(255, 255, 255, 0.14); }
 
@@ -166,6 +188,7 @@ html.dark .notion-collection-card { box-shadow: rgba(255, 255, 255, 0.13) 0 0 0 
 .notion-property-title { font-weight: 500; font-size: 14px; }
 .notion-table-of-contents-item { font-size: 14px; }
 /* collection views inside a column_list: react-notion-x makes them 100vw (overlaps sibling columns) -> fit the column, scroll horizontally */
-.notion-column .notion-table, .notion-column .notion-board { width: 100%; max-width: 100%; }
+.notion-column .notion-table, .notion-column .notion-board { width: 100% !important; max-width: 100% !important; } /* !important: library sets inline window width after mount */
+.notion-column .notion-table-view, .notion-column .notion-board-view { padding-left: 0 !important; padding-right: 0 !important; }
 .notion-column .notion-table-view, .notion-column .notion-table-header, .notion-column .notion-board-view { min-width: 0; }
 .notion-table-header-inner, .notion-table-view-header-cell-inner, .notion-table-row, .notion-table-cell, .notion-collection-card-cover { border-color: var(--oopy-border); }

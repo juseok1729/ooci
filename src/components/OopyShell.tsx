@@ -3,15 +3,17 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import { NotionRenderer } from 'react-notion-x'
-import type { ExtendedRecordMap } from 'notion-types'
+import type { Block, ExtendedRecordMap } from 'notion-types'
 import type { Alias, MenuItem, SiteSettings } from '@/lib/sites'
-import { formatNotionDate, pageHref } from '@/lib/resolve'
+import { formatNotionDate, formatNotionTime, pageHref } from '@/lib/resolve'
 
 const Code = dynamic(() => import('react-notion-x/third-party/code').then((m) => m.Code))
 const Collection = dynamic(() => import('react-notion-x/third-party/collection').then((m) => m.Collection))
 const Equation = dynamic(() => import('react-notion-x/third-party/equation').then((m) => m.Equation))
 
-// Collection date cells: oopy renders YYYY/MM/DD HH:mm instead of react-notion-x's "Sep 20, 2026".
+// Collection date/time cells: oopy renders YYYY/MM/DD HH:mm instead of react-notion-x's "Sep 20, 2026 08:26 PM".
+const propertyCreatedTimeValue = ({ block }: { block: Block }) => formatNotionTime(block.created_time)
+const propertyLastEditedTimeValue = ({ block }: { block: Block }) => formatNotionTime(block.last_edited_time)
 const propertyDateValue = ({ data }: { data?: unknown[][] }, fallback: () => ReactNode) => {
   const d = (data?.[0]?.[1] as [string, Parameters<typeof formatNotionDate>[0]][] | undefined)?.find((x) => x[0] === 'd')?.[1]
   return formatNotionDate(d) ?? fallback()
@@ -117,7 +119,7 @@ export default function OopyShell(p: Props) {
           darkMode={dark}
           previewImages={false}
           mapPageUrl={(id) => pageHref(id, p.rootPageId, p.aliases)}
-          components={{ Code, Collection, Equation, propertyDateValue }}
+          components={{ Code, Collection, Equation, propertyDateValue, propertyCreatedTimeValue, propertyLastEditedTimeValue }}
         />
 
         {p.settings.footer && <footer className="oopy-footer"><span>{p.settings.footer}</span></footer>}

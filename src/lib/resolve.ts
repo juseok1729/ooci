@@ -37,3 +37,27 @@ export function formatNotionDate(d: { start_date?: string; start_time?: string; 
   const f = (date: string, time?: string) => date.replaceAll('-', '/') + (time ? ` ${time}` : '')
   return f(d.start_date, d.start_time) + (d.end_date ? ` → ${f(d.end_date, d.end_time)}` : '')
 }
+
+export const TIME_ZONE = 'Asia/Seoul'
+const timeFmt = new Intl.DateTimeFormat('sv-SE', { timeZone: TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+/** created_time / last_edited_time (ms epoch) -> "YYYY/MM/DD HH:mm" in TIME_ZONE (fixed so SSR and client agree). */
+export function formatNotionTime(ms: number): string {
+  return timeFmt.format(new Date(ms)).replaceAll('-', '/')
+}
+
+/**
+ * Page icons set to a workspace custom emoji arrive as `notion://custom_emoji/<space>/<id>`, which react-notion-x
+ * would wrap in an image-proxy URL that 404s. The page chunk carries a `custom_emoji` table with the real image URL,
+ * so rewrite icons in place and expose the id->url map react-notion-x uses for inline ("ce") emojis.
+ */
+export function resolveCustomEmojis(map: ExtendedRecordMap) {
+  const table = (map as unknown as { custom_emoji?: Record<string, unknown> }).custom_emoji
+  if (!table) return
+  const urls = Object.fromEntries(Object.entries(table).map(([id, rec]) => [id, (getBlockValue(rec as never) as unknown as { url?: string })?.url ?? null]))
+  map.custom_emojis = { ...map.custom_emojis, ...urls }
+  for (const rec of Object.values(map.block)) {
+    const b = getBlockValue(rec)
+    const icon = b?.format?.page_icon
+    if (b && icon?.startsWith('notion://custom_emoji/')) b.format.page_icon = urls[icon.split('/').pop()!] ?? icon
+  }
+}
