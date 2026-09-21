@@ -73,6 +73,10 @@ export default async function Page({ params }: Params) {
   return (
     <>
       {d.site.settings.customCss && <style dangerouslySetInnerHTML={{ __html: d.site.settings.customCss }} />}
+      {d.site.settings.font && (
+        // Google Fonts by family name (e.g. "Gothic A1", "Nanum Gothic"); React hoists this into <head>.
+        <link rel="stylesheet" precedence="default" href={`https://fonts.googleapis.com/css2?family=${encodeURIComponent(d.site.settings.font).replace(/%20/g, '+')}:wght@400;500;600;700&display=swap`} />
+      )}
       <div style={{ fontFamily: d.site.settings.font ? `'${d.site.settings.font}', var(--notion-font)` : undefined, ['--oopy-color' as string]: d.site.settings.brandColor }}>
         <OopyShell
           recordMap={d.recordMap}
