@@ -170,7 +170,7 @@ html.dark .oopy-switch::after { transform: translateX(20px); }
 .notion-callout { padding: 16px 16px 16px 12px; border-radius: var(--oopy-radius-callout); margin: 4px 0; }
 .notion-code { background: var(--bg-color-1); border-radius: 3px; padding: 34px 16px 32px 32px; font-size: 85%; tab-size: 2; font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, Courier, monospace; }
 html.dark .notion-code { background: #3f4447; }
-.notion-inline-code { background: var(--bg-color-0); color: #eb5757; border-radius: 3px; padding: 0.2em 0.4em; font-size: 85%; }
+.notion-inline-code { background: var(--bg-color-0); color: inherit; border-radius: 3px; padding: 0.2em 0.4em; font-size: 85%; }
 .notion-asset-wrapper { margin: 4px 0; max-width: 100%; }
 .notion-asset-wrapper img { border-radius: var(--oopy-radius-image); }
 .notion-hr { margin: 6px 0; border-top: 1px solid var(--oopy-border); }
@@ -205,3 +205,17 @@ html.dark .notion-collection-card:hover { background: var(--bg-color-0); }
 html.dark .notion-collection-view-type-icon { fill: var(--fg-color); }
 html.dark .notion-collection-view-tabs-content-item-active { border-bottom-color: var(--fg-color); }
 .notion-collection-view-tabs-content-item:hover { background-color: var(--bg-color-2); } /* library uses --fg-color-1 = white in dark */
+
+/* ---- simple table block: library borders use --fg-color-5 (near-white in dark) ---- */
+.notion-simple-table, .notion-simple-table td { border-color: var(--oopy-border); }
+
+/* ---- code blocks in dark mode: prism.css is a light theme (black text + white text-shadow) ---- */
+html.dark .notion-code code[class*='language-'], html.dark .notion-code pre[class*='language-'] { color: var(--fg-color); text-shadow: none; }
+html.dark .notion-code .token.comment, html.dark .notion-code .token.prolog, html.dark .notion-code .token.doctype, html.dark .notion-code .token.cdata { color: #999; }
+html.dark .notion-code .token.punctuation { color: #ccc; }
+html.dark .notion-code .token.property, html.dark .notion-code .token.tag, html.dark .notion-code .token.boolean, html.dark .notion-code .token.number, html.dark .notion-code .token.constant, html.dark .notion-code .token.symbol, html.dark .notion-code .token.deleted { color: #f2777a; }
+html.dark .notion-code .token.selector, html.dark .notion-code .token.attr-name, html.dark .notion-code .token.string, html.dark .notion-code .token.char, html.dark .notion-code .token.builtin, html.dark .notion-code .token.inserted { color: #99cc99; }
+html.dark .notion-code .token.operator, html.dark .notion-code .token.entity, html.dark .notion-code .token.url, html.dark .notion-code .token.variable { color: #66cccc; background: none; }
+html.dark .notion-code .token.atrule, html.dark .notion-code .token.attr-value, html.dark .notion-code .token.keyword { color: #6699cc; }
+html.dark .notion-code .token.function, html.dark .notion-code .token.class-name { color: #f99157; }
+html.dark .notion-code .token.regex, html.dark .notion-code .token.important { color: #ffcc66; }
