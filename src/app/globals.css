@@ -204,3 +204,4 @@ html.dark .notion-collection-card:hover { background: var(--bg-color-0); }
 .notion-gallery-grid { border-color: var(--oopy-border); }
 html.dark .notion-collection-view-type-icon { fill: var(--fg-color); }
 html.dark .notion-collection-view-tabs-content-item-active { border-bottom-color: var(--fg-color); }
+.notion-collection-view-tabs-content-item:hover { background-color: var(--bg-color-2); } /* library uses --fg-color-1 = white in dark */
