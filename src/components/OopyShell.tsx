@@ -1,14 +1,40 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ComponentProps, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import { NotionRenderer } from 'react-notion-x'
 import type { Block, ExtendedRecordMap } from 'notion-types'
+import { getBlockValue } from 'notion-utils'
 import type { Alias, MenuItem, SiteSettings } from '@/lib/sites'
 import { formatNotionDate, formatNotionTime, pageHref } from '@/lib/resolve'
 
 const Code = dynamic(() => import('react-notion-x/third-party/code').then((m) => m.Code))
-const Collection = dynamic(() => import('react-notion-x/third-party/collection').then((m) => m.Collection))
+const LibCollection = dynamic(() => import('react-notion-x/third-party/collection').then((m) => m.Collection))
+
+// oopy shows the view tab (icon + view name) even for a single-view database; react-notion-x only renders tabs for 2+ views.
+const VIEW_ICON: Record<string, string> = {
+  table: 'M2 0h10a2 2 0 012 2v10a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm3.75 5.67v2.66h6.75V5.67H5.75zm0 4.17v2.66h5.75a1 1 0 001-1V9.84H5.75zM1.5 5.67v2.66h2.75V5.67H1.5zm0 4.17v1.66a1 1 0 001 1h1.75V9.84H1.5zm1-8.34a1 1 0 00-1 1v1.66h2.75V1.5H2.5zm3.25 0v2.66h6.75V2.5a1 1 0 00-1-1H5.75z',
+  gallery: 'M12 1.5H2a.5.5 0 00-.5.5v10a.5.5 0 00.5.5h10a.5.5 0 00.5-.5V2a.5.5 0 00-.5-.5zM2 0h10a2 2 0 012 2v10a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm1 3h3.5v3.5H3V3zm4.5 0H11v3.5H7.5V3zM3 7.5h3.5V11H3V7.5zm4.5 0H11V11H7.5V7.5z',
+}
+function Collection(props: ComponentProps<typeof LibCollection>) {
+  const viewIds = (props.block as { view_ids?: string[] }).view_ids ?? []
+  const view = viewIds.length === 1 ? getBlockValue(props.ctx.recordMap.collection_view[viewIds[0]]) : undefined
+  return (
+    <>
+      {view && (
+        <div className="notion-collection-view-tabs-row">
+          <button className="notion-collection-view-tabs-content-item notion-collection-view-tabs-content-item-active">
+            <div className="notion-collection-view-type">
+              <svg className="notion-collection-view-type-icon" viewBox="0 0 14 14"><path d={VIEW_ICON[view.type] ?? VIEW_ICON.table} /></svg>
+              <span className="notion-collection-view-type-title">{view.name || view.type}</span>
+            </div>
+          </button>
+        </div>
+      )}
+      <LibCollection {...props} />
+    </>
+  )
+}
 const Equation = dynamic(() => import('react-notion-x/third-party/equation').then((m) => m.Equation))
 
 // Collection date/time cells: oopy renders YYYY/MM/DD HH:mm instead of react-notion-x's "Sep 20, 2026 08:26 PM".

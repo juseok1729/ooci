@@ -201,3 +201,6 @@ html.dark .notion-code { background: #3f4447; }
 .notion-collection-card-property { padding: 0; }
 html.dark .notion-collection-card { background: var(--bg-color-1); box-shadow: none; }
 html.dark .notion-collection-card:hover { background: var(--bg-color-0); }
+.notion-gallery-grid { border-color: var(--oopy-border); }
+html.dark .notion-collection-view-type-icon { fill: var(--fg-color); }
+html.dark .notion-collection-view-tabs-content-item-active { border-bottom-color: var(--fg-color); }
