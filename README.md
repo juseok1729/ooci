@@ -2,6 +2,14 @@
 
 공개 Notion 페이지를 oopy 기본 테마로 렌더링하고, 커스텀 도메인/서브도메인을 붙여 여러 사람(팀원)의 사이트를 한 서버에서 서비스합니다.
 
+## 렌더링 비교
+
+같은 Notion 페이지를 oopy(왼쪽)와 이 프로젝트(오른쪽)로 렌더링한 결과입니다.
+
+| oopy | OOCI |
+|---|---|
+| ![oopy](assets/oopy-pppp.png) | ![OOCI](assets/ooci-pppp.png) |
+
 ## 구성
 
 | 항목 | 내용 |
