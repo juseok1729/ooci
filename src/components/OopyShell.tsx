@@ -68,13 +68,21 @@ function Icon({ icon, className }: { icon?: string; className?: string }) {
 }
 
 function useDarkMode() {
-  const [dark, setDark] = useState(false)
-  useEffect(() => setDark(document.documentElement.classList.contains('dark')), [])
-  const toggle = () => {
-    const next = !dark
+  const [dark, setDark] = useState(true) // dark by default; layout.tsx applies the same rule before first paint
+  const apply = (next: boolean) => {
     setDark(next)
     document.documentElement.classList.toggle('dark', next)
-    try { localStorage.setItem('oopy-theme', next ? 'dark' : 'light') } catch {}
+  }
+  // Source of truth is the stored choice, not the <html> class: if React regenerates the root after a hydration
+  // mismatch the class is lost, so re-derive and re-apply it here.
+  useEffect(() => {
+    let stored: string | null = null
+    try { stored = localStorage.getItem('oopy-theme') } catch {}
+    apply(stored !== 'light')
+  }, [])
+  const toggle = () => {
+    apply(!dark)
+    try { localStorage.setItem('oopy-theme', dark ? 'light' : 'dark') } catch {}
   }
   return [dark, toggle] as const
 }

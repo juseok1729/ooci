@@ -191,7 +191,9 @@ html.dark .notion-code { background: #3f4447; }
 .notion-collection { width: 100%; max-width: 100%; align-self: stretch; }
 .notion-table, .notion-board { width: 100% !important; max-width: 100% !important; } /* !important: inline window width set after mount */
 .notion-table-view, .notion-board-view, .notion-collection-group > summary { padding-left: 0 !important; padding-right: 0 !important; }
-.notion-table-view, .notion-table-header, .notion-table-body, .notion-board-view { min-width: 0; }
+.notion-table-view, .notion-table-header, .notion-table-header-inner, .notion-table-body { min-width: 100%; box-sizing: border-box; } /* stretch to the container; wider tables still scroll */
+.notion-board-view { min-width: 0; }
+.notion-table-th:last-child, .notion-table-cell:last-child { flex: 1 0 auto; } /* last column fills the remaining width (oopy/Notion) */
 .notion-table-header-inner, .notion-table-view-header-cell-inner, .notion-table-row, .notion-table-cell, .notion-collection-card-cover { border-color: var(--oopy-border); }
 
 /* ---- oopy collection styling: compact rows/cards, bold un-underlined titles ---- */
