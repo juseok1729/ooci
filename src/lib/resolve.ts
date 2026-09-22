@@ -1,5 +1,5 @@
 import type { ExtendedRecordMap } from 'notion-types'
-import { getBlockTitle, getBlockValue, parsePageId } from 'notion-utils'
+import { getBlockParentPage, getBlockTitle, getBlockValue, parsePageId } from 'notion-utils'
 import type { Alias, MenuItem } from './sites'
 
 /** URL path segments -> notion page id. '' = root, alias path, or a notion id/slug-id. */
@@ -88,4 +88,20 @@ export function hideEmptyGroups(map: ExtendedRecordMap) {
       }
     }
   }
+}
+
+export type SearchHit = { pageId: string; title: string; text: string }
+export const SEARCH_MARK = /<\/?gzkNfoUU>/g // Notion wraps matches in <gzkNfoUU>…</gzkNfoUU>
+
+/** Notion search hits (pages or blocks) -> one hit per page, first matching snippet kept. */
+export function groupSearchHits(results: { id: string; highlight?: { text?: string } }[], map: ExtendedRecordMap): SearchHit[] {
+  const seen = new Map<string, SearchHit>()
+  for (const r of results) {
+    const block = getBlockValue(map.block[r.id])
+    if (!block) continue
+    const page = block.type === 'page' ? block : getBlockParentPage(block, map)
+    if (!page || seen.has(page.id)) continue
+    seen.set(page.id, { pageId: page.id, title: getBlockTitle(page, map) || 'Untitled', text: r.highlight?.text ?? '' })
+  }
+  return [...seen.values()]
 }

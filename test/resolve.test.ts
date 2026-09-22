@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { resolvePageId, pageHref, formatNotionDate, formatNotionTime, resolveCustomEmojis, hideEmptyGroups } from '../src/lib/resolve.ts'
+import { resolvePageId, pageHref, formatNotionDate, formatNotionTime, resolveCustomEmojis, hideEmptyGroups, groupSearchHits } from '../src/lib/resolve.ts'
 
 const root = '4c1be6f5-1f1e-487b-9ecd-95ef30850f20'
 const aliases = [{ path: 'blog/first', pageId: '11dc52d7-4aec-45c9-8d8d-9639453c1dde' }]
@@ -52,4 +52,17 @@ test('hideEmptyGroups', () => {
   hideEmptyGroups(map)
   assert.deepEqual(groups.map((g) => g.hidden), [true, false, true])
   assert.equal((query['results:select:Full'] as { total?: number }).total, 2)
+})
+
+test('groupSearchHits', () => {
+  const map = {
+    block: {
+      p1: { value: { id: 'p1', type: 'page', properties: { title: [['Page One']] } } },
+      t1: { value: { id: 't1', type: 'text', parent_id: 'p1', parent_table: 'block' } },
+      t2: { value: { id: 't2', type: 'text', parent_id: 'p1', parent_table: 'block' } },
+    },
+  } as never
+  const hits = groupSearchHits([{ id: 't1', highlight: { text: 'a <gzkNfoUU>hit</gzkNfoUU>' } }, { id: 't2', highlight: { text: 'second' } }, { id: 'p1', highlight: { text: 'page' } }, { id: 'missing' }], map)
+  assert.deepEqual(hits, [{ pageId: 'p1', title: 'Page One', text: 'a <gzkNfoUU>hit</gzkNfoUU>' }])
+  assert.deepEqual(groupSearchHits([{ id: 'p1', highlight: { text: 'page <gzkNfoUU>snippet</gzkNfoUU>' } }], map), [{ pageId: 'p1', title: 'Page One', text: 'page <gzkNfoUU>snippet</gzkNfoUU>' }])
 })

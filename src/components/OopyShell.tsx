@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState, type ComponentProps, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import dynamic from 'next/dynamic'
 import { NotionRenderer } from 'react-notion-x'
 import type { Block, ExtendedRecordMap } from 'notion-types'
 import { getBlockValue } from 'notion-utils'
 import type { Alias, MenuItem, SiteSettings } from '@/lib/sites'
-import { formatNotionDate, formatNotionTime, pageHref } from '@/lib/resolve'
+import { SEARCH_MARK, formatNotionDate, formatNotionTime, pageHref } from '@/lib/resolve'
 
 const Code = dynamic(() => import('react-notion-x/third-party/code').then((m) => m.Code))
 const LibCollection = dynamic(() => import('react-notion-x/third-party/collection').then((m) => m.Collection))
@@ -79,9 +79,52 @@ function useDarkMode() {
   return [dark, toggle] as const
 }
 
+type Hit = { href: string; title: string; text: string }
+
+/** Notion highlight markers -> <mark>, without HTML injection. */
+function Highlight({ text }: { text: string }) {
+  return <>{text.split(SEARCH_MARK).map((seg, i) => (i % 2 ? <mark key={i}>{seg}</mark> : seg))}</>
+}
+
+function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null)
+  const [q, setQ] = useState('')
+  const [hits, setHits] = useState<Hit[] | null>(null)
+  useEffect(() => {
+    const d = ref.current
+    if (!d) return
+    if (open && !d.open) { d.showModal(); d.querySelector('input')?.focus() }
+    if (!open && d.open) d.close()
+  }, [open])
+  useEffect(() => {
+    if (!q.trim()) { setHits(null); return }
+    const ctl = new AbortController()
+    const t = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ctl.signal }).then((r) => r.json()).then(setHits).catch(() => {})
+    }, 250)
+    return () => { clearTimeout(t); ctl.abort() }
+  }, [q])
+  return (
+    <dialog ref={ref} className="oopy-search" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
+      <div className="oopy-search-box">
+        <input type="search" placeholder="검색" value={q} onChange={(e) => setQ(e.target.value)} />
+        {hits && (
+          <ul className="oopy-search-results">
+            {hits.length === 0 && <li className="oopy-search-empty">결과 없음</li>}
+            {hits.map((h) => (
+              <li key={h.href}><a href={h.href}><strong>{h.title}</strong>{h.text && <span><Highlight text={h.text} /></span>}</a></li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </dialog>
+  )
+}
+
 export default function OopyShell(p: Props) {
   const [dark, toggleDark] = useDarkMode()
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState(false)
   useEffect(() => setOpen(false), [p.currentPath])
 
   const brand = (
@@ -93,6 +136,12 @@ export default function OopyShell(p: Props) {
   const menuLinks = p.menu.map((m) => (
     <a key={m.href} href={m.href} aria-current={m.href === p.currentPath ? 'page' : undefined}>{m.title}</a>
   ))
+  const searchBtn = (
+    <button className="oopy-iconbtn oopy-search-btn" aria-label="검색" onClick={() => setSearch(true)}>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      <span>검색</span>
+    </button>
+  )
   const darkSwitch = (
     <button className="oopy-switch" role="switch" aria-checked={dark} aria-label="다크 모드" onClick={toggleDark} />
   )
@@ -104,11 +153,11 @@ export default function OopyShell(p: Props) {
           <div className="oopy-topbar">
             <div>{brand}</div>
             <nav className="oopy-menu">{menuLinks}</nav>
-            <div className="oopy-actions">{darkSwitch}</div>
+            <div className="oopy-actions">{searchBtn}{darkSwitch}</div>
           </div>
           <div className="oopy-topbar-mobile">
             {brand}
-            <button className="oopy-iconbtn" aria-label="메뉴 열기" onClick={() => setOpen(true)}>☰</button>
+            <div className="oopy-actions">{searchBtn}<button className="oopy-iconbtn" aria-label="메뉴 열기" onClick={() => setOpen(true)}>☰</button></div>
           </div>
           <div className="oopy-line" />
           <div className="oopy-progress" />
@@ -149,6 +198,7 @@ export default function OopyShell(p: Props) {
         />
 
         {p.settings.footer && <footer className="oopy-footer"><span>{p.settings.footer}</span></footer>}
+        <SearchDialog open={search} onClose={() => setSearch(false)} />
         <button className="oopy-totop" aria-label="맨 위로" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>↑<span>TOP</span></button>
       </div>
     </div>

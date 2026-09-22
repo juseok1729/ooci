@@ -1,6 +1,6 @@
 import { NotionAPI } from 'notion-client'
 import type { ExtendedRecordMap } from 'notion-types'
-import { TIME_ZONE, hideEmptyGroups, resolveCustomEmojis } from './resolve'
+import { TIME_ZONE, groupSearchHits, hideEmptyGroups, resolveCustomEmojis } from './resolve'
 
 const notion = new NotionAPI({ userTimeZone: TIME_ZONE })
 const TTL = Number(process.env.PAGE_TTL ?? 60) * 1000
@@ -38,6 +38,12 @@ async function withCustomEmojis(m: ExtendedRecordMap) {
     resolveCustomEmojis(m)
   }
   return m
+}
+
+/** Full-text search under the site's root page (public pages need no token). */
+export async function searchPages(rootPageId: string, query: string, limit = 10) {
+  const r = await notion.search({ ancestorId: rootPageId, query, limit })
+  return groupSearchHits(r.results, r.recordMap as ExtendedRecordMap)
 }
 
 export function purgePages() {
