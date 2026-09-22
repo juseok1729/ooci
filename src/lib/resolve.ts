@@ -66,3 +66,26 @@ export function resolveCustomEmojis(map: ExtendedRecordMap): [string, string][] 
   }
   return missing
 }
+
+/**
+ * Grouped views: react-notion-x renders every group in the view's format, including empty ones, and shows no counts
+ * (it reads `total`, which the query results lack). oopy/Notion hide empty groups and show counts, so mark empty groups
+ * hidden and fill `total` from the result. ponytail: select/status/checkbox groups only; date-range groups are left as-is.
+ */
+export function hideEmptyGroups(map: ExtendedRecordMap) {
+  type Group = { hidden?: boolean; value: { type: string; value?: unknown } }
+  type Result = { blockIds?: string[]; total?: number }
+  for (const views of Object.values(map.collection_query ?? {})) {
+    for (const [viewId, query] of Object.entries(views)) {
+      const groups = (getBlockValue(map.collection_view[viewId])?.format as { collection_groups?: Group[] } | undefined)?.collection_groups
+      for (const g of groups ?? []) {
+        const v = g.value.value
+        if (v && typeof v === 'object') continue
+        const r = (query as unknown as Record<string, Result>)[`results:${g.value.type}:${v === undefined ? 'uncategorized' : v}`]
+        if (!r) continue
+        r.total ??= r.blockIds?.length ?? 0
+        if (!r.total) g.hidden = true
+      }
+    }
+  }
+}

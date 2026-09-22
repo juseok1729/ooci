@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { resolvePageId, pageHref, formatNotionDate, formatNotionTime, resolveCustomEmojis } from '../src/lib/resolve.ts'
+import { resolvePageId, pageHref, formatNotionDate, formatNotionTime, resolveCustomEmojis, hideEmptyGroups } from '../src/lib/resolve.ts'
 
 const root = '4c1be6f5-1f1e-487b-9ecd-95ef30850f20'
 const aliases = [{ path: 'blog/first', pageId: '11dc52d7-4aec-45c9-8d8d-9639453c1dde' }]
@@ -39,4 +39,17 @@ test('resolveCustomEmojis', () => {
   assert.equal(m.block.p1.value.format.page_icon, 'https://img/e1.png')
   assert.equal(m.block.p2.value.format.page_icon, '🙂')
   assert.deepEqual(m.custom_emojis, { e1: 'https://img/e1.png' })
+})
+
+test('hideEmptyGroups', () => {
+  const groups = [
+    { value: { type: 'select', value: 'Empty' }, hidden: false },
+    { value: { type: 'select', value: 'Full' }, hidden: false },
+    { value: { type: 'select' }, hidden: false },
+  ]
+  const query = { 'results:select:Empty': { blockIds: [] }, 'results:select:Full': { blockIds: ['a', 'b'] }, 'results:select:uncategorized': { blockIds: [] } }
+  const map = { collection_view: { v1: { value: { id: 'v1', format: { collection_groups: groups } } } }, collection_query: { c1: { v1: query } } } as never
+  hideEmptyGroups(map)
+  assert.deepEqual(groups.map((g) => g.hidden), [true, false, true])
+  assert.equal((query['results:select:Full'] as { total?: number }).total, 2)
 })

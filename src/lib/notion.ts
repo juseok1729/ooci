@@ -1,6 +1,6 @@
 import { NotionAPI } from 'notion-client'
 import type { ExtendedRecordMap } from 'notion-types'
-import { TIME_ZONE, resolveCustomEmojis } from './resolve'
+import { TIME_ZONE, hideEmptyGroups, resolveCustomEmojis } from './resolve'
 
 const notion = new NotionAPI({ userTimeZone: TIME_ZONE })
 const TTL = Number(process.env.PAGE_TTL ?? 60) * 1000
@@ -24,6 +24,7 @@ export function getPage(pageId: string): Promise<ExtendedRecordMap> {
 }
 
 async function withCustomEmojis(m: ExtendedRecordMap) {
+  hideEmptyGroups(m)
   const missing = resolveCustomEmojis(m)
   if (!missing.length) return m
   // Row pages from collection queries reference emojis whose records are not in the page chunk; fetch them by pointer (works without auth).
