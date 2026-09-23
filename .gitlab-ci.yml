@@ -1,0 +1,12 @@
+deploy:
+  stage: deploy
+  image: docker:cli
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - cd /home/opc/app/ooci
+    - git pull "$CI_REPOSITORY_URL" "$CI_COMMIT_BRANCH"
+    - docker compose up -d --build
+    - docker image prune -f
