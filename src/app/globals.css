@@ -181,6 +181,7 @@ html.dark .notion-code { background: #3f4447; }
 .notion-toggle > summary { padding: 3px 2px; }
 .notion-collection-header { padding: 4px 2px; }
 .notion-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.notion-column .notion-gallery { overflow-x: auto; } /* narrow column: gallery scrolls within it instead of overlapping the next column (oopy) */
 .notion-collection-card { border-radius: var(--oopy-radius-card); box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 2px 4px; }
 .notion-collection-card:hover { background: var(--bg-color-0); }
 
